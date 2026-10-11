@@ -207,17 +207,23 @@ export const SimpananTab: React.FC<SimpananTabProps> = ({
               {/* Anggota Selector */}
               <div>
                 <label className="block font-semibold text-slate-700 mb-1">Pilih Anggota *</label>
-                <select
-                  value={selectedMemberId}
-                  onChange={(e) => setSelectedMemberId(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 font-medium"
-                >
-                  {anggotaList.map((a) => (
-                    <option key={a.id} value={a.id}>
-                      {a.nama} ({a.id})
-                    </option>
-                  ))}
-                </select>
+                {anggotaList.length === 0 ? (
+                  <div className="p-2.5 bg-amber-50 border border-amber-200 rounded-xl text-amber-800 text-[11px]">
+                    Belum ada anggota terdaftar. Silakan daftarkan anggota terlebih dahulu di Tab Anggota.
+                  </div>
+                ) : (
+                  <select
+                    value={selectedMemberId}
+                    onChange={(e) => setSelectedMemberId(e.target.value)}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 font-medium"
+                  >
+                    {anggotaList.map((a) => (
+                      <option key={a.id} value={a.id}>
+                        {a.nama} ({a.id})
+                      </option>
+                    ))}
+                  </select>
+                )}
                 {selectedMember && (
                   <p className="text-[11px] text-slate-500 mt-1">
                     Saldo Sukarela saat ini:{' '}
@@ -357,7 +363,8 @@ export const SimpananTab: React.FC<SimpananTabProps> = ({
 
               <button
                 type="submit"
-                className="w-full py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-semibold shadow-xs transition-colors"
+                disabled={anggotaList.length === 0}
+                className="w-full py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl font-semibold shadow-xs transition-colors"
               >
                 Simpan Transaksi Simpanan
               </button>
@@ -431,20 +438,29 @@ export const SimpananTab: React.FC<SimpananTabProps> = ({
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 text-slate-700">
-                    {filteredRecap.map((r) => (
-                      <tr key={r.anggota.id} className="hover:bg-slate-50/70 transition-colors">
-                        <td className="py-3 px-4">
-                          <div className="font-semibold text-slate-900">{r.anggota.nama}</div>
-                          <div className="text-[10px] font-mono text-slate-400">{r.anggota.id}</div>
-                        </td>
-                        <td className="py-3 px-4 text-right text-slate-600">{formatRupiah(r.pokok)}</td>
-                        <td className="py-3 px-4 text-right text-slate-600">{formatRupiah(r.wajib)}</td>
-                        <td className="py-3 px-4 text-right text-slate-600">{formatRupiah(r.sukarela)}</td>
-                        <td className="py-3 px-4 text-right font-bold text-emerald-700">
-                          {formatRupiah(r.total)}
+                    {filteredRecap.length === 0 ? (
+                      <tr>
+                        <td colSpan={5} className="py-12 text-center text-slate-400">
+                          <p className="text-sm font-medium text-slate-600">Belum ada data. Silakan tambah data baru.</p>
+                          <p className="text-[11px] text-slate-400 mt-1">Daftarkan anggota dan catat simpanan untuk melihat rekap saldo.</p>
                         </td>
                       </tr>
-                    ))}
+                    ) : (
+                      filteredRecap.map((r) => (
+                        <tr key={r.anggota.id} className="hover:bg-slate-50/70 transition-colors">
+                          <td className="py-3 px-4">
+                            <div className="font-semibold text-slate-900">{r.anggota.nama}</div>
+                            <div className="text-[10px] font-mono text-slate-400">{r.anggota.id}</div>
+                          </td>
+                          <td className="py-3 px-4 text-right text-slate-600">{formatRupiah(r.pokok)}</td>
+                          <td className="py-3 px-4 text-right text-slate-600">{formatRupiah(r.wajib)}</td>
+                          <td className="py-3 px-4 text-right text-slate-600">{formatRupiah(r.sukarela)}</td>
+                          <td className="py-3 px-4 text-right font-bold text-emerald-700">
+                            {formatRupiah(r.total)}
+                          </td>
+                        </tr>
+                      ))
+                    )}
                   </tbody>
                 </table>
               </div>
@@ -465,8 +481,9 @@ export const SimpananTab: React.FC<SimpananTabProps> = ({
                   <tbody className="divide-y divide-slate-100 text-slate-700">
                     {filteredHistory.length === 0 ? (
                       <tr>
-                        <td colSpan={6} className="py-10 text-center text-slate-400">
-                          Tidak ada transaksi simpanan yang cocok.
+                        <td colSpan={6} className="py-12 text-center text-slate-400">
+                          <p className="text-sm font-medium text-slate-600">Belum ada data. Silakan tambah data baru.</p>
+                          <p className="text-[11px] text-slate-400 mt-1">Transaksi setoran dan penarikan simpanan akan tercatat di sini.</p>
                         </td>
                       </tr>
                     ) : (

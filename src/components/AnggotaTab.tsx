@@ -204,8 +204,23 @@ export const AnggotaTab: React.FC<AnggotaTabProps> = ({
             <tbody className="divide-y divide-slate-100 text-slate-700">
               {filteredAnggota.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="py-12 text-center text-slate-400">
-                    Tidak ditemukan data anggota yang sesuai pencarian.
+                  <td colSpan={8} className="py-16 text-center text-slate-400">
+                    <div className="flex flex-col items-center justify-center">
+                      <Users size={36} className="mb-2 opacity-25" />
+                      <p className="text-sm font-medium text-slate-600">
+                        {anggotaList.length === 0
+                          ? 'Belum ada data. Silakan tambah data baru.'
+                          : 'Tidak ditemukan data anggota yang sesuai pencarian.'}
+                      </p>
+                      {anggotaList.length === 0 && (
+                        <button
+                          onClick={handleOpenAdd}
+                          className="mt-3 px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold shadow-xs flex items-center gap-1.5 transition-colors"
+                        >
+                          <UserPlus size={14} /> Tambah Anggota Pertama
+                        </button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ) : (

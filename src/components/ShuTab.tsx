@@ -341,63 +341,76 @@ export const ShuTab: React.FC<ShuTabProps> = ({
           </div>
 
           <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
-                <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold uppercase tracking-wider text-[11px]">
-                  <tr>
-                    <th className="py-3 px-3">Anggota</th>
-                    <th className="py-3 px-3 text-right">Simpanan & Porsi</th>
-                    <th className="py-3 px-3 text-right">SHU Modal</th>
-                    <th className="py-3 px-3 text-right">Jasa Pinjaman</th>
-                    <th className="py-3 px-3 text-right">SHU Usaha</th>
-                    <th className="py-3 px-3 text-right">TOTAL SHU</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 text-slate-700">
-                  {hasilPerhitungan.map((h) => (
-                    <tr key={h.idAnggota} className="hover:bg-slate-50/70 transition-colors">
-                      <td className="py-3 px-3">
-                        <div className="font-semibold text-slate-900">{h.namaAnggota}</div>
-                        <div className="font-mono text-[10px] text-slate-400">{h.idAnggota}</div>
-                      </td>
-                      <td className="py-3 px-3 text-right">
-                        <div className="text-slate-800">{formatRupiah(h.totalSimpanan)}</div>
-                        <div className="text-[10px] text-slate-400 font-medium">
-                          {h.persentaseSimpanan.toFixed(1)}% porsi
-                        </div>
-                      </td>
-                      <td className="py-3 px-3 text-right font-medium text-emerald-700">
-                        {formatRupiah(h.shuJasaModal)}
-                      </td>
-                      <td className="py-3 px-3 text-right">
-                        <div className="text-slate-800">{formatRupiah(h.totalPinjamanDanBunga)}</div>
-                        <div className="text-[10px] text-slate-400 font-medium">
-                          {h.persentaseUsaha.toFixed(1)}% porsi
-                        </div>
-                      </td>
-                      <td className="py-3 px-3 text-right font-medium text-blue-700">
-                        {formatRupiah(h.shuJasaUsaha)}
-                      </td>
-                      <td className="py-3 px-3 text-right font-bold text-slate-900 bg-emerald-50/30">
-                        <span className="text-emerald-800 text-sm font-extrabold">{formatRupiah(h.totalShuDiterima)}</span>
+            {hasilPerhitungan.length === 0 ? (
+              <div className="p-16 text-center text-slate-400 flex flex-col items-center justify-center">
+                <Calculator size={40} className="mb-3 opacity-25" />
+                <p className="text-sm font-semibold text-slate-700">
+                  Belum ada data anggota dan transaksi untuk dihitung.
+                </p>
+                <p className="text-xs text-slate-500 mt-1 max-w-md">
+                  SHU dibagikan berdasarkan proporsi simpanan (Jasa Modal) dan partisipasi pinjaman (Jasa Usaha).
+                  Silakan daftarkan anggota dan catat transaksi terlebih dahulu.
+                </p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold uppercase tracking-wider text-[11px]">
+                    <tr>
+                      <th className="py-3 px-3">Anggota</th>
+                      <th className="py-3 px-3 text-right">Simpanan & Porsi</th>
+                      <th className="py-3 px-3 text-right">SHU Modal</th>
+                      <th className="py-3 px-3 text-right">Jasa Pinjaman</th>
+                      <th className="py-3 px-3 text-right">SHU Usaha</th>
+                      <th className="py-3 px-3 text-right">TOTAL SHU</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 text-slate-700">
+                    {hasilPerhitungan.map((h) => (
+                      <tr key={h.idAnggota} className="hover:bg-slate-50/70 transition-colors">
+                        <td className="py-3 px-3">
+                          <div className="font-semibold text-slate-900">{h.namaAnggota}</div>
+                          <div className="font-mono text-[10px] text-slate-400">{h.idAnggota}</div>
+                        </td>
+                        <td className="py-3 px-3 text-right">
+                          <div className="text-slate-800">{formatRupiah(h.totalSimpanan)}</div>
+                          <div className="text-[10px] text-slate-400 font-medium">
+                            {h.persentaseSimpanan.toFixed(1)}% porsi
+                          </div>
+                        </td>
+                        <td className="py-3 px-3 text-right font-medium text-emerald-700">
+                          {formatRupiah(h.shuJasaModal)}
+                        </td>
+                        <td className="py-3 px-3 text-right">
+                          <div className="text-slate-800">{formatRupiah(h.totalPinjamanDanBunga)}</div>
+                          <div className="text-[10px] text-slate-400 font-medium">
+                            {h.persentaseUsaha.toFixed(1)}% porsi
+                          </div>
+                        </td>
+                        <td className="py-3 px-3 text-right font-medium text-blue-700">
+                          {formatRupiah(h.shuJasaUsaha)}
+                        </td>
+                        <td className="py-3 px-3 text-right font-bold text-slate-900 bg-emerald-50/30">
+                          <span className="text-emerald-800 text-sm font-extrabold">{formatRupiah(h.totalShuDiterima)}</span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                  <tfoot className="bg-slate-50 border-t border-slate-200 font-bold text-slate-900">
+                    <tr>
+                      <td className="py-3 px-3 uppercase text-[11px]">Total Seluruh Anggota</td>
+                      <td className="py-3 px-3 text-right">{formatRupiah(totalAllSavings)}</td>
+                      <td className="py-3 px-3 text-right text-emerald-800">{formatRupiah(danaJasaModal)}</td>
+                      <td className="py-3 px-3 text-right">{formatRupiah(totalAllLoanActivity)}</td>
+                      <td className="py-3 px-3 text-right text-blue-800">{formatRupiah(danaJasaUsaha)}</td>
+                      <td className="py-3 px-3 text-right text-emerald-800 text-sm">
+                        {formatRupiah(danaJasaModal + danaJasaUsaha)}
                       </td>
                     </tr>
-                  ))}
-                </tbody>
-                <tfoot className="bg-slate-50 border-t border-slate-200 font-bold text-slate-900">
-                  <tr>
-                    <td className="py-3 px-3 uppercase text-[11px]">Total Seluruh Anggota</td>
-                    <td className="py-3 px-3 text-right">{formatRupiah(totalAllSavings)}</td>
-                    <td className="py-3 px-3 text-right text-emerald-800">{formatRupiah(danaJasaModal)}</td>
-                    <td className="py-3 px-3 text-right">{formatRupiah(totalAllLoanActivity)}</td>
-                    <td className="py-3 px-3 text-right text-blue-800">{formatRupiah(danaJasaUsaha)}</td>
-                    <td className="py-3 px-3 text-right text-emerald-800 text-sm">
-                      {formatRupiah(danaJasaModal + danaJasaUsaha)}
-                    </td>
-                  </tr>
-                </tfoot>
-              </table>
-            </div>
+                  </tfoot>
+                </table>
+              </div>
+            )}
           </div>
         </div>
       </div>

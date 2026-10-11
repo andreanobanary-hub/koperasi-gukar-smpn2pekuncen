@@ -6,12 +6,12 @@ import {
   TrendingUp,
   Sparkles,
   ArrowUpRight,
-  ArrowDownRight,
   ChevronRight,
-  CheckCircle2,
   Users,
   ShieldCheck,
-  Building,
+  PlusCircle,
+  FileText,
+  Info,
 } from 'lucide-react';
 import {
   Anggota,
@@ -29,6 +29,7 @@ interface DashboardTabProps {
   angsuranList: Angsuran[];
   kasList: TransaksiKas[];
   onNavigateTab: (tab: any) => void;
+  onOpenSetKasModal: () => void;
 }
 
 export const DashboardTab: React.FC<DashboardTabProps> = ({
@@ -38,6 +39,7 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
   angsuranList,
   kasList,
   onNavigateTab,
+  onOpenSetKasModal,
 }) => {
   const [aiAnalysis, setAiAnalysis] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -72,11 +74,9 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
   const totalPinjamanBeredar = pinjamanList
     .filter((p) => p.status === 'aktif')
     .reduce((sum, p) => sum + p.sisaPinjamanPokok, 0);
-  const totalPinjamanDisalurkan = pinjamanList.reduce((sum, p) => sum + p.nominalPinjaman, 0);
   const totalPokokTerbayar = angsuranList.reduce((sum, a) => sum + a.pokokDibayar, 0);
 
   // 4. Sisa SHU Tahun Berjalan
-  // Pendapatan Koperasi: Jasa/Bunga dari angsuran + Operasional Pendapatan
   const pendapatanBunga = angsuranList.reduce((sum, a) => sum + a.bungaDibayar, 0);
   const pendapatanOperasional = kasList
     .filter((k) => k.tipeTransaksi === 'operasional_pendapatan' && k.kreditAkun !== 'Modal Awal Koperasi')
@@ -122,9 +122,43 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
   };
 
   const recentTransactions = [...kasList].reverse().slice(0, 5);
+  const isDataEmpty = anggotaList.length === 0 && kasList.length === 0;
 
   return (
     <div className="space-y-6">
+      {/* Welcome Banner when Empty */}
+      {isDataEmpty && (
+        <div className="bg-emerald-50/70 border border-emerald-200 rounded-2xl p-5 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex items-start gap-3">
+            <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+              <Info size={22} />
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-slate-800">
+                Aplikasi Koperasi Digital Siap Digunakan (Basis Data Bersih)
+              </h3>
+              <p className="text-xs text-slate-600 mt-0.5">
+                Belum ada data transaksi atau anggota. Silakan mulai dengan mengatur modal kas awal atau mendaftarkan anggota.
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <button
+              onClick={onOpenSetKasModal}
+              className="flex-1 sm:flex-initial px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 shadow-xs transition-colors shrink-0"
+            >
+              <PlusCircle size={14} /> Set Kas Awal
+            </button>
+            <button
+              onClick={() => onNavigateTab('anggota')}
+              className="flex-1 sm:flex-initial px-3.5 py-2 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 shadow-xs transition-colors shrink-0"
+            >
+              <Users size={14} /> + Anggota
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* 4 Main Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Total Kas */}
@@ -146,10 +180,10 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
           <div className="mt-3 pt-3 border-t border-slate-100 flex justify-between text-[11px] text-slate-500">
             <span>Kas Keluar: {formatRupiah(totalKasKeluar)}</span>
             <button
-              onClick={() => onNavigateTab('pembukuan')}
-              className="text-emerald-700 font-medium hover:underline flex items-center"
+              onClick={onOpenSetKasModal}
+              className="text-emerald-700 font-semibold hover:underline flex items-center gap-1"
             >
-              Lihat Kas <ChevronRight size={12} />
+              Set Kas <ChevronRight size={12} />
             </button>
           </div>
         </div>
@@ -290,70 +324,80 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
           {/* Quick Metrics Breakdown */}
           <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs">
             <h3 className="font-semibold text-sm text-slate-800 mb-4">Struktur Modal & Simpanan Anggota</h3>
-            <div className="space-y-3.5">
-              {/* Pokok */}
-              <div>
-                <div className="flex justify-between text-xs mb-1">
-                  <span className="text-slate-600 font-medium">Simpanan Pokok (Modal Awal)</span>
-                  <span className="font-semibold text-slate-800">
-                    {formatRupiah(totalSimpananPokok)}{' '}
-                    <span className="text-slate-400 text-[11px]">
-                      ({totalSimpanan > 0 ? ((totalSimpananPokok / totalSimpanan) * 100).toFixed(1) : 0}%)
-                    </span>
-                  </span>
-                </div>
-                <div className="w-full bg-slate-100 rounded-full h-2">
-                  <div
-                    className="bg-emerald-500 h-2 rounded-full"
-                    style={{
-                      width: `${totalSimpanan > 0 ? (totalSimpananPokok / totalSimpanan) * 100 : 0}%`,
-                    }}
-                  />
-                </div>
+            {totalSimpanan === 0 ? (
+              <div className="p-6 text-center text-slate-400 bg-slate-50 rounded-xl border border-dashed border-slate-200">
+                <PiggyBank size={32} className="mx-auto mb-2 opacity-30" />
+                <p className="text-xs font-medium">Belum ada simpanan terhimpun (Rp 0).</p>
+                <p className="text-[11px] text-slate-400 mt-1">
+                  Daftarkan anggota dan catat simpanan pokok/wajib di Tab Simpanan.
+                </p>
               </div>
+            ) : (
+              <div className="space-y-3.5">
+                {/* Pokok */}
+                <div>
+                  <div className="flex justify-between text-xs mb-1">
+                    <span className="text-slate-600 font-medium">Simpanan Pokok (Modal Awal)</span>
+                    <span className="font-semibold text-slate-800">
+                      {formatRupiah(totalSimpananPokok)}{' '}
+                      <span className="text-slate-400 text-[11px]">
+                        ({totalSimpanan > 0 ? ((totalSimpananPokok / totalSimpanan) * 100).toFixed(1) : 0}%)
+                      </span>
+                    </span>
+                  </div>
+                  <div className="w-full bg-slate-100 rounded-full h-2">
+                    <div
+                      className="bg-emerald-500 h-2 rounded-full"
+                      style={{
+                        width: `${totalSimpanan > 0 ? (totalSimpananPokok / totalSimpanan) * 100 : 0}%`,
+                      }}
+                    />
+                  </div>
+                </div>
 
-              {/* Wajib */}
-              <div>
-                <div className="flex justify-between text-xs mb-1">
-                  <span className="text-slate-600 font-medium">Simpanan Wajib (Iuran Rutin)</span>
-                  <span className="font-semibold text-slate-800">
-                    {formatRupiah(totalSimpananWajib)}{' '}
-                    <span className="text-slate-400 text-[11px]">
-                      ({totalSimpanan > 0 ? ((totalSimpananWajib / totalSimpanan) * 100).toFixed(1) : 0}%)
+                {/* Wajib */}
+                <div>
+                  <div className="flex justify-between text-xs mb-1">
+                    <span className="text-slate-600 font-medium">Simpanan Wajib (Iuran Rutin)</span>
+                    <span className="font-semibold text-slate-800">
+                      {formatRupiah(totalSimpananWajib)}{' '}
+                      <span className="text-slate-400 text-[11px]">
+                        ({totalSimpanan > 0 ? ((totalSimpananWajib / totalSimpanan) * 100).toFixed(1) : 0}%)
+                      </span>
                     </span>
-                  </span>
+                  </div>
+                  <div className="w-full bg-slate-100 rounded-full h-2">
+                    <div
+                      className="bg-blue-500 h-2 rounded-full"
+                      style={{
+                        width: `${totalSimpanan > 0 ? (totalSimpananWajib / totalSimpanan) * 100 : 0}%`,
+                      }}
+                    />
+                  </div>
                 </div>
-                <div className="w-full bg-slate-100 rounded-full h-2">
-                  <div
-                    className="bg-blue-500 h-2 rounded-full"
-                    style={{
-                      width: `${totalSimpanan > 0 ? (totalSimpananWajib / totalSimpanan) * 100 : 0}%`,
-                    }}
-                  />
-                </div>
-              </div>
 
-              {/* Sukarela */}
-              <div>
-                <div className="flex justify-between text-xs mb-1">
-                  <span className="text-slate-600 font-medium">Simpanan Sukarela (Tabungan Fleksibel)</span>
-                  <span className="font-semibold text-slate-800">
-                    {formatRupiah(totalSimpananSukarela)}{' '}
-                    <span className="text-slate-400 text-[11px]">
-                      ({totalSimpanan > 0 ? ((totalSimpananSukarela / totalSimpanan) * 100).toFixed(1) : 0}%)
+                {/* Sukarela */}
+                <div>
+                  <div className="flex justify-between text-xs mb-1">
+                    <span className="text-slate-600 font-medium">Simpanan Sukarela (Tabungan Fleksibel)</span>
+                    <span className="font-semibold text-slate-800">
+                      {formatRupiah(totalSimpananSukarela)}{' '}
+                      <span className="text-slate-400 text-[11px]">
+                        ({totalSimpanan > 0 ? ((totalSimpananSukarela / totalSimpanan) * 100).toFixed(1) : 0}%)
+                      </span>
                     </span>
-                  </span>
-                </div>
-                <div className="w-full bg-slate-100 rounded-full h-2">
-                  <div
-                    className="bg-purple-500 h-2 rounded-full"
-                    style={{
-                      width: `${totalSimpanan > 0 ? (totalSimpananSukarela / totalSimpanan) * 100 : 0}%`,
-                    }}
-                  />
+                  </div>
+                  <div className="w-full bg-slate-100 rounded-full h-2">
+                    <div
+                      className="bg-purple-500 h-2 rounded-full"
+                      style={{
+                        width: `${totalSimpanan > 0 ? (totalSimpananSukarela / totalSimpanan) * 100 : 0}%`,
+                      }}
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
 
@@ -374,40 +418,50 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
             </div>
 
             <div className="space-y-3 flex-1 overflow-y-auto">
-              {recentTransactions.map((tx) => (
-                <div
-                  key={tx.id}
-                  className="p-3 rounded-xl border border-slate-100 bg-slate-50/60 hover:bg-slate-50 transition-colors flex items-start justify-between gap-2"
-                >
-                  <div className="flex items-start gap-2.5">
+              {recentTransactions.length === 0 ? (
+                <div className="h-44 flex flex-col items-center justify-center text-slate-400 border border-dashed border-slate-200 rounded-xl">
+                  <FileText size={32} className="mb-2 opacity-25" />
+                  <p className="text-xs">Belum ada mutasi kas.</p>
+                  <p className="text-[11px] text-slate-400 mt-0.5">
+                    Gunakan tombol di bawah atau set saldo kas awal.
+                  </p>
+                </div>
+              ) : (
+                recentTransactions.map((tx) => (
+                  <div
+                    key={tx.id}
+                    className="p-3 rounded-xl border border-slate-100 bg-slate-50/60 hover:bg-slate-50 transition-colors flex items-start justify-between gap-2"
+                  >
+                    <div className="flex items-start gap-2.5">
+                      <div
+                        className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 text-xs font-bold mt-0.5 ${
+                          tx.kategoriKas === 'masuk'
+                            ? 'bg-emerald-100 text-emerald-700'
+                            : 'bg-red-100 text-red-700'
+                        }`}
+                      >
+                        {tx.kategoriKas === 'masuk' ? '+' : '-'}
+                      </div>
+                      <div>
+                        <p className="text-xs font-semibold text-slate-800 line-clamp-1">{tx.catatan}</p>
+                        <div className="text-[11px] text-slate-400 flex items-center gap-2 mt-0.5">
+                          <span>{formatTanggal(tx.tanggal)}</span>
+                          <span>•</span>
+                          <span className="font-mono">{tx.noBukti}</span>
+                        </div>
+                      </div>
+                    </div>
                     <div
-                      className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 text-xs font-bold mt-0.5 ${
-                        tx.kategoriKas === 'masuk'
-                          ? 'bg-emerald-100 text-emerald-700'
-                          : 'bg-red-100 text-red-700'
+                      className={`text-xs font-bold text-right shrink-0 ${
+                        tx.kategoriKas === 'masuk' ? 'text-emerald-600' : 'text-red-600'
                       }`}
                     >
                       {tx.kategoriKas === 'masuk' ? '+' : '-'}
-                    </div>
-                    <div>
-                      <p className="text-xs font-semibold text-slate-800 line-clamp-1">{tx.catatan}</p>
-                      <div className="text-[11px] text-slate-400 flex items-center gap-2 mt-0.5">
-                        <span>{formatTanggal(tx.tanggal)}</span>
-                        <span>•</span>
-                        <span className="font-mono">{tx.noBukti}</span>
-                      </div>
+                      {formatRupiah(tx.nominal)}
                     </div>
                   </div>
-                  <div
-                    className={`text-xs font-bold text-right shrink-0 ${
-                      tx.kategoriKas === 'masuk' ? 'text-emerald-600' : 'text-red-600'
-                    }`}
-                  >
-                    {tx.kategoriKas === 'masuk' ? '+' : '-'}
-                    {formatRupiah(tx.nominal)}
-                  </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
 
             <div className="mt-4 pt-4 border-t border-slate-100 grid grid-cols-2 gap-2 text-center text-xs">

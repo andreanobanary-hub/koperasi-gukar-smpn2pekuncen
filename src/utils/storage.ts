@@ -15,14 +15,24 @@ import {
   INITIAL_SHU_CONFIG,
 } from './seedData';
 
+// Version 2 keys to ensure pristine empty initial state
 const KEYS = {
-  ANGGOTA: 'koperasi_data_anggota_v1',
-  SIMPANAN: 'koperasi_data_simpanan_v1',
-  PINJAMAN: 'koperasi_data_pinjaman_v1',
-  ANGSURAN: 'koperasi_data_angsuran_v1',
-  KAS: 'koperasi_data_kas_v1',
-  SHU_CONFIG: 'koperasi_data_shu_config_v1',
+  ANGGOTA: 'koperasi_data_anggota_v2',
+  SIMPANAN: 'koperasi_data_simpanan_v2',
+  PINJAMAN: 'koperasi_data_pinjaman_v2',
+  ANGSURAN: 'koperasi_data_angsuran_v2',
+  KAS: 'koperasi_data_kas_v2',
+  SHU_CONFIG: 'koperasi_data_shu_config_v2',
 };
+
+// Purge legacy v1 demo data if present in localStorage
+try {
+  ['koperasi_data_anggota_v1', 'koperasi_data_simpanan_v1', 'koperasi_data_pinjaman_v1', 'koperasi_data_angsuran_v1', 'koperasi_data_kas_v1', 'koperasi_data_shu_config_v1'].forEach((k) => {
+    localStorage.removeItem(k);
+  });
+} catch {
+  // Ignore in SSR or restricted environments
+}
 
 export const storage = {
   getAnggota(): Anggota[] {
@@ -38,7 +48,11 @@ export const storage = {
     }
   },
   saveAnggota(items: Anggota[]) {
-    localStorage.setItem(KEYS.ANGGOTA, JSON.stringify(items));
+    try {
+      localStorage.setItem(KEYS.ANGGOTA, JSON.stringify(items));
+    } catch (e) {
+      console.error('Failed to save anggota to localStorage', e);
+    }
   },
 
   getSimpanan(): TransaksiSimpanan[] {
@@ -54,7 +68,11 @@ export const storage = {
     }
   },
   saveSimpanan(items: TransaksiSimpanan[]) {
-    localStorage.setItem(KEYS.SIMPANAN, JSON.stringify(items));
+    try {
+      localStorage.setItem(KEYS.SIMPANAN, JSON.stringify(items));
+    } catch (e) {
+      console.error('Failed to save simpanan to localStorage', e);
+    }
   },
 
   getPinjaman(): Pinjaman[] {
@@ -70,7 +88,11 @@ export const storage = {
     }
   },
   savePinjaman(items: Pinjaman[]) {
-    localStorage.setItem(KEYS.PINJAMAN, JSON.stringify(items));
+    try {
+      localStorage.setItem(KEYS.PINJAMAN, JSON.stringify(items));
+    } catch (e) {
+      console.error('Failed to save pinjaman to localStorage', e);
+    }
   },
 
   getAngsuran(): Angsuran[] {
@@ -86,7 +108,11 @@ export const storage = {
     }
   },
   saveAngsuran(items: Angsuran[]) {
-    localStorage.setItem(KEYS.ANGSURAN, JSON.stringify(items));
+    try {
+      localStorage.setItem(KEYS.ANGSURAN, JSON.stringify(items));
+    } catch (e) {
+      console.error('Failed to save angsuran to localStorage', e);
+    }
   },
 
   getKas(): TransaksiKas[] {
@@ -102,7 +128,11 @@ export const storage = {
     }
   },
   saveKas(items: TransaksiKas[]) {
-    localStorage.setItem(KEYS.KAS, JSON.stringify(items));
+    try {
+      localStorage.setItem(KEYS.KAS, JSON.stringify(items));
+    } catch (e) {
+      console.error('Failed to save kas to localStorage', e);
+    }
   },
 
   getShuConfig(): ShuConfig {
@@ -118,21 +148,25 @@ export const storage = {
     }
   },
   saveShuConfig(config: ShuConfig) {
-    localStorage.setItem(KEYS.SHU_CONFIG, JSON.stringify(config));
+    try {
+      localStorage.setItem(KEYS.SHU_CONFIG, JSON.stringify(config));
+    } catch (e) {
+      console.error('Failed to save shu config to localStorage', e);
+    }
   },
 
   resetAllData() {
-    this.saveAnggota(INITIAL_ANGGOTA);
-    this.saveSimpanan(INITIAL_SIMPANAN);
-    this.savePinjaman(INITIAL_PINJAMAN);
-    this.saveAngsuran(INITIAL_ANGSURAN);
-    this.saveKas(INITIAL_KAS);
+    this.saveAnggota([]);
+    this.saveSimpanan([]);
+    this.savePinjaman([]);
+    this.saveAngsuran([]);
+    this.saveKas([]);
     this.saveShuConfig(INITIAL_SHU_CONFIG);
   },
 
   getAllDataBackup() {
     return {
-      version: '1.0',
+      version: '2.0',
       exportedAt: new Date().toISOString(),
       anggota: this.getAnggota(),
       simpanan: this.getSimpanan(),

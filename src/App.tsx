@@ -18,12 +18,14 @@ import { PinjamanTab } from './components/PinjamanTab';
 import { PembukuanTab } from './components/PembukuanTab';
 import { ShuTab } from './components/ShuTab';
 import { ExportModal } from './components/ExportModal';
+import { SetSaldoKasModal } from './components/SetSaldoKasModal';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<ActiveTab>('dashboard');
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+  const [isSetKasModalOpen, setIsSetKasModalOpen] = useState(false);
 
-  // Core State backed by LocalStorage
+  // Core State backed by LocalStorage (clean empty default)
   const [anggotaList, setAnggotaList] = useState<Anggota[]>(() => storage.getAnggota());
   const [simpananList, setSimpananList] = useState<TransaksiSimpanan[]>(() => storage.getSimpanan());
   const [pinjamanList, setPinjamanList] = useState<Pinjaman[]>(() => storage.getPinjaman());
@@ -64,6 +66,11 @@ export default function App() {
     .filter((k) => k.kategoriKas === 'keluar')
     .reduce((sum, k) => sum + k.nominal, 0);
   const totalKas = totalKasMasuk - totalKasKeluar;
+
+  // --- SET SALDO KAS AWAL ---
+  const handleSetKasAwal = (tx: TransaksiKas) => {
+    setKasList((prev) => [...prev, tx]);
+  };
 
   // --- MEMBER ACTIONS ---
   const handleAddAnggota = (newAnggota: Anggota, simpananPokokNominal: number = 0) => {
@@ -193,11 +200,11 @@ export default function App() {
   // --- RESET & RESTORE ---
   const handleResetData = () => {
     storage.resetAllData();
-    setAnggotaList(storage.getAnggota());
-    setSimpananList(storage.getSimpanan());
-    setPinjamanList(storage.getPinjaman());
-    setAngsuranList(storage.getAngsuran());
-    setKasList(storage.getKas());
+    setAnggotaList([]);
+    setSimpananList([]);
+    setPinjamanList([]);
+    setAngsuranList([]);
+    setKasList([]);
     setShuConfig(storage.getShuConfig());
   };
 
@@ -282,6 +289,7 @@ export default function App() {
         totalKas={totalKas}
         jumlahAnggota={anggotaList.length}
         onOpenExportModal={() => setIsExportModalOpen(true)}
+        onOpenSetKasModal={() => setIsSetKasModalOpen(true)}
         onResetData={handleResetData}
       />
 
@@ -295,6 +303,7 @@ export default function App() {
             angsuranList={angsuranList}
             kasList={kasList}
             onNavigateTab={setActiveTab}
+            onOpenSetKasModal={() => setIsSetKasModalOpen(true)}
           />
         )}
 
@@ -348,6 +357,15 @@ export default function App() {
           />
         )}
       </main>
+
+      {/* Set Saldo Kas Awal Modal */}
+      <SetSaldoKasModal
+        isOpen={isSetKasModalOpen}
+        onClose={() => setIsSetKasModalOpen(false)}
+        currentSaldo={totalKas}
+        existingKasList={kasList}
+        onSetKasAwal={handleSetKasAwal}
+      />
 
       {/* Export & Backup Modal */}
       <ExportModal

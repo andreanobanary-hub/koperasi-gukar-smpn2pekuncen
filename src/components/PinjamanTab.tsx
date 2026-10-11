@@ -231,17 +231,23 @@ export const PinjamanTab: React.FC<PinjamanTabProps> = ({
               {/* Anggota Selector */}
               <div>
                 <label className="block font-semibold text-slate-700 mb-1">Nama Anggota Peminjam *</label>
-                <select
-                  value={selectedMemberId}
-                  onChange={(e) => setSelectedMemberId(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 font-medium"
-                >
-                  {anggotaList.map((a) => (
-                    <option key={a.id} value={a.id}>
-                      {a.nama} ({a.id})
-                    </option>
-                  ))}
-                </select>
+                {anggotaList.length === 0 ? (
+                  <div className="p-2.5 bg-amber-50 border border-amber-200 rounded-xl text-amber-800 text-[11px]">
+                    Belum ada anggota terdaftar. Peminjam harus terdaftar sebagai anggota di Tab Anggota.
+                  </div>
+                ) : (
+                  <select
+                    value={selectedMemberId}
+                    onChange={(e) => setSelectedMemberId(e.target.value)}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 font-medium"
+                  >
+                    {anggotaList.map((a) => (
+                      <option key={a.id} value={a.id}>
+                        {a.nama} ({a.id})
+                      </option>
+                    ))}
+                  </select>
+                )}
               </div>
 
               {/* Nominal Pinjaman */}
@@ -366,7 +372,8 @@ export const PinjamanTab: React.FC<PinjamanTabProps> = ({
 
               <button
                 type="submit"
-                className="w-full py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-semibold shadow-xs transition-colors"
+                disabled={anggotaList.length === 0}
+                className="w-full py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl font-semibold shadow-xs transition-colors"
               >
                 Setujui & Cairkan Pinjaman
               </button>
@@ -432,8 +439,9 @@ export const PinjamanTab: React.FC<PinjamanTabProps> = ({
                 <tbody className="divide-y divide-slate-100 text-slate-700">
                   {filteredLoans.length === 0 ? (
                     <tr>
-                      <td colSpan={6} className="py-10 text-center text-slate-400">
-                        Tidak ada data pinjaman yang cocok.
+                      <td colSpan={6} className="py-14 text-center text-slate-400">
+                        <p className="text-sm font-medium text-slate-600">Belum ada data. Silakan tambah data baru.</p>
+                        <p className="text-[11px] text-slate-400 mt-1">Daftar pengajuan pinjaman anggota akan muncul di sini.</p>
                       </td>
                     </tr>
                   ) : (

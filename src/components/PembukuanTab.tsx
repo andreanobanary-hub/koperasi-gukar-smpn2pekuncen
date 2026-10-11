@@ -683,8 +683,11 @@ export const PembukuanTab: React.FC<PembukuanTabProps> = ({
                 <tbody className="divide-y divide-slate-100 text-slate-700">
                   {filteredLedger.length === 0 ? (
                     <tr>
-                      <td colSpan={6} className="py-12 text-center text-slate-400">
-                        Tidak ada entri buku kas yang cocok dengan pencarian.
+                      <td colSpan={6} className="py-14 text-center text-slate-400">
+                        <p className="text-sm font-medium text-slate-600">Belum ada data. Silakan tambah data baru.</p>
+                        <p className="text-[11px] text-slate-400 mt-1">
+                          Catat transaksi kas secara manual atau gunakan Asisten AI di panel sebelah kiri.
+                        </p>
                       </td>
                     </tr>
                   ) : (

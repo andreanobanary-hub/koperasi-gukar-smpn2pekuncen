@@ -7,9 +7,10 @@ import {
   BookOpen,
   Calculator,
   Download,
-  RotateCcw,
+  Trash2,
   Building2,
   Wallet,
+  PlusCircle,
 } from 'lucide-react';
 import { formatRupiah } from '../utils/formatters';
 
@@ -21,6 +22,7 @@ interface HeaderProps {
   totalKas: number;
   jumlahAnggota: number;
   onOpenExportModal: () => void;
+  onOpenSetKasModal: () => void;
   onResetData: () => void;
 }
 
@@ -30,6 +32,7 @@ export const Header: React.FC<HeaderProps> = ({
   totalKas,
   jumlahAnggota,
   onOpenExportModal,
+  onOpenSetKasModal,
   onResetData,
 }) => {
   const tabs = [
@@ -61,15 +64,29 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
 
         {/* Quick summary and actions */}
-        <div className="flex items-center gap-3">
-          {/* Quick Kas badge */}
-          <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl">
+        <div className="flex items-center gap-2.5">
+          {/* Quick Kas badge with click to set modal */}
+          <div
+            onClick={onOpenSetKasModal}
+            className="flex items-center gap-2 px-3 py-1.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl cursor-pointer transition-colors"
+            title="Klik untuk atur / set Saldo Kas Awal"
+          >
             <Wallet size={16} className="text-emerald-600" />
             <div className="text-xs">
               <span className="text-slate-400 block text-[10px] leading-tight font-medium">SALDO KAS SAAT INI</span>
               <span className="font-bold text-slate-800">{formatRupiah(totalKas)}</span>
             </div>
           </div>
+
+          {/* Set Kas Awal Button */}
+          <button
+            onClick={onOpenSetKasModal}
+            className="hidden sm:flex items-center gap-1.5 px-2.5 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-semibold rounded-xl transition-colors border border-emerald-200/80"
+            title="Atur Saldo Kas Awal / Modal Awal"
+          >
+            <PlusCircle size={14} className="text-emerald-600" />
+            <span>Set Kas Awal</span>
+          </button>
 
           {/* Export button */}
           <button
@@ -78,21 +95,25 @@ export const Header: React.FC<HeaderProps> = ({
             title="Ekspor laporan ke Excel, CSV atau JSON"
           >
             <Download size={14} className="text-slate-600" />
-            <span>Ekspor Data</span>
+            <span className="hidden sm:inline">Ekspor Data</span>
           </button>
 
-          {/* Reset button */}
+          {/* Clear / Reset All Data (Red Button) */}
           <button
             onClick={() => {
-              if (window.confirm('Kembalikan seluruh data ke contoh demo awal? Data tersimpan saat ini akan digantikan.')) {
+              if (
+                window.confirm(
+                  'PERINGATAN: Apakah Anda yakin ingin MENGOSONGKAN / RESET SEMUA DATA?\n\nSemua data anggota, transaksi simpanan, pinjaman, dan buku kas akan dihapus bersih (kembali ke Rp 0).'
+                )
+              ) {
                 onResetData();
               }
             }}
-            className="flex items-center gap-1.5 px-2.5 py-2 text-slate-400 hover:text-red-600 hover:bg-red-50 text-xs rounded-xl transition-colors"
-            title="Reset ke Data Demo Awal"
+            className="flex items-center gap-1.5 px-3 py-2 bg-red-50 hover:bg-red-100 text-red-700 text-xs font-semibold rounded-xl transition-colors border border-red-200 shadow-2xs"
+            title="Kosongkan / Reset Semua Data"
           >
-            <RotateCcw size={14} />
-            <span className="hidden md:inline">Reset Demo</span>
+            <Trash2 size={14} className="text-red-600" />
+            <span>Kosongkan Data</span>
           </button>
         </div>
       </div>
