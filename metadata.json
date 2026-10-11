@@ -1,0 +1,8 @@
+{
+  "name": "Koperasi Digital - Sistem Pembukuan & Manajemen Keuangan",
+  "description": "Aplikasi manajemen dan pembukuan koperasi digital lengkap dengan AI Smart Journaling, manajemen anggota, simpanan, pinjaman, buku kas, dan kalkulator SHU.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
